@@ -1,0 +1,224 @@
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript" src="https://rawgithub.com/NickQiZhu/dc.js/master/web/js/crossfilter.js"></script>
+<head>
+<link rel="icon" href="data:;base64,=">
+</head>
+
+<style>
+
+ #div1{
+   width: 1300px;
+   display: block;
+   padding-left: 300px;
+ }
+#keydiv{
+ padding-left: 40px;
+ padding right: 20px;
+ width: 960px;
+
+}
+ .key_label{
+   float: left;
+   display: float;
+   width: 100px;
+
+
+
+ }
+  .axis path, line{
+        stroke:black;
+    }
+
+
+
+    .key_square{
+       margin-left:50px;
+        height:10px;
+        width:10px;
+        outline:solid 1px black;
+        float:left;
+		     margin: 6px 10px 0px 10px;
+    }
+    #bar_div{
+      height: 400px;
+      width:900px;
+    }
+    #scatter{
+        float:left;
+    }
+
+
+</style>
+<script>
+
+var time_scale,
+    percent_scale,
+    cost_scale,
+    month_scale;
+var filtered_data=[];
+var agg_filter=[];
+var groups=[{'id':'BTC','desc':'Bitcoin'},{'id':'LTC','desc':'LiteCoin'},{'id':'ETH','desc':'Etherium'},{'id':'XRP','desc':'XRP'},{'id':'SENT','desc':'Sentiment'}];
+
+
+var color = d3.scaleOrdinal()
+   //this assumes you have 3 groups of data//﻿each of the domains corresponds to a color set
+       .domain(['BTC','LTC','ETH','XRP','SENT'])
+       .range(["#fb5454", "#f1fb54", "#54befb","#fffff","#000000"]);
+
+
+function gen_legend(data){
+  var key_items = d3.select("#key_div")
+    .selectAll("div")
+    .data(groups)
+    .enter()
+  .append("div")
+    .attr("class","key_line")
+    .attr("height",20)
+    .attr("width",300)
+    .attr("id",function(d){return d.id});
+
+  key_items.append("div")
+      .attr("id", function(d){return "key_square_" + d.id})
+      .style('background-color', function (d) { return color(d.id) })
+      .attr("class", "key_square");
+
+  key_items.append("div")
+      .attr("class","key_label")
+      .text(function(d){return d.desc});
+
+  d3.selectAll(".key_line")
+                .on("click", get_data);
+  }
+
+
+
+function draw_scatter(){
+  container_dimensions = {width: 900, height: 400},
+  margins = {top: 10, right: 20, bottom: 30, left: 60},
+  chart_dimensions = {
+      width: container_dimensions.width - margins.left - margins.right,
+      height: container_dimensions.height - margins.top - margins.bottom
+    };
+
+
+  var chart = d3.select("#scatter_div")
+      .append("svg")
+        .attr("width", container_dimensions.width)
+        .attr("height", container_dimensions.height)
+      .append("g")
+        .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
+        .attr("id","scatter");
+
+  var start = d3.timeParse("%m/%d/%Y %H:%M %p")("9/14/2017 8:00 AM");
+  var end=d3.timeParse("%m/%d/%Y %H:%M %p")("9/17/2017 12:00 PM");
+  console.log(start)
+
+    time_scale =  d3.scaleTime()
+      .range([0,chart_dimensions.width])
+      .domain([start, end]);
+
+    percent_scale = d3.scaleLinear()
+      .range([chart_dimensions.height, 0])
+      .domain([-0.5,.5]);
+
+    var time_axis = d3.axisBottom(time_scale);
+
+    var count_axis = d3.axisLeft(percent_scale);
+
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + chart_dimensions.height + ")")
+      .call(time_axis);
+
+  chart.append("g")
+	   .attr("class", "y axis")
+	    .call(count_axis);
+
+  d3.select(".y.axis")
+    .append("text")
+	   .attr("text-anchor","middle")
+      .text("percent on time")
+    .attr("transform", "rotate (-270, 0, 0)")
+    .attr("x",  container_dimensions.height/2)
+    .attr("y", 50);
+      };
+
+
+
+function get_data(){
+  // get the id of the current element
+  var id = d3.select(this).attr("id");
+  // see if we have an associated time series
+
+  var ts = d3.selectAll("#"+id+"_path");
+
+
+
+
+  if (ts.empty()) {
+      d3.csv("cryptodata.csv", function(data){
+        var parseDate = d3.timeParse("%m/%d/%Y %H:%M");
+
+        data.forEach(function(d) {
+          d.datetime_s=d.datetime
+           d.datetime=parseDate(d.datetime);
+           d.wtgsent= +d.wtgsent;
+           d.pricech= +d.pricech;
+          });
+
+
+          filtered_data = data.filter(function(d){return d.id === id;});
+          console.log('data')
+          console.log(filtered_data)
+          plot_scatter(id);
+      })}
+    else {
+          ts.remove();
+
+      };
+  }
+
+
+  function plot_scatter(id){
+      var line = d3.line()
+        .x(function(d) { return time_scale(d.datetime); })
+        .y(function(d) { return percent_scale(d.pricech); });
+
+        var g = d3.select("#scatter")
+            .append("g")
+                .attr("id", id + "_path")
+                .attr("class", id.split("_"));
+                // draw dots
+        g.append("path")
+                .datum(filtered_data)
+                .attr("fill", "none")
+                .attr("stroke", function(d){return color(d.id);})
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("stroke-width", 1)
+                .attr("d", line);
+
+        }
+
+
+</script>
+
+<body>
+    <h1>Cryptocurrencies</h1>
+    <div id='div1'>
+    <div id="key_div"></div>
+    <div id="scatter_div"></div>
+    </div>
+
+
+
+    <script>
+      gen_legend();
+      draw_scatter();
+
+
+
+
+  </script>
+</body>
+</script>
