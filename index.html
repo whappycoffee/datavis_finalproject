@@ -11,10 +11,15 @@
    display: block;
    padding-left: 300px;
  }
+#line_div{padding-left: 40px;
+padding right: 20px;
+width: 960px;
+display: block;}
 #keydiv{
  padding-left: 40px;
  padding right: 20px;
  width: 960px;
+ display: block;
 
 }
  .key_label{
@@ -59,7 +64,25 @@ var filtered_data=[];
 var agg_filter=[];
 var groups=[{'id':'BTC','desc':'Bitcoin'},{'id':'LTC','desc':'LiteCoin'},{'id':'ETH','desc':'Etherium'},{'id':'XRP','desc':'XRP'},{'id':'SENT','desc':'Sentiment'}];
 
+function getcolor(id){
+  if (id=='BTC'){
+    color="#fb5454";
+  }
+  if (id=='LTC'){
+    color="#f1fb54";
+  }
+  if (id=='ETH'){
+    color="#54befb";
+  }
+  if (id=='XRP'){
+    color="#fffff";
+  }
+  if (id=='SENT'){
+    color="#000000";
+  }
 
+  return color
+}
 var color = d3.scaleOrdinal()
    //this assumes you have 3 groups of data//﻿each of the domains corresponds to a color set
        .domain(['BTC','LTC','ETH','XRP','SENT'])
@@ -92,7 +115,7 @@ function gen_legend(data){
 
 
 
-function draw_scatter(){
+function draw_linechart(){
   container_dimensions = {width: 900, height: 400},
   margins = {top: 10, right: 20, bottom: 30, left: 60},
   chart_dimensions = {
@@ -101,13 +124,13 @@ function draw_scatter(){
     };
 
 
-  var chart = d3.select("#scatter_div")
+  var chart = d3.select("#line_div")
       .append("svg")
         .attr("width", container_dimensions.width)
         .attr("height", container_dimensions.height)
       .append("g")
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
-        .attr("id","scatter");
+        .attr("id","linechart");
 
   var start = d3.timeParse("%m/%d/%Y %H:%M %p")("9/14/2017 8:00 AM");
   var end=d3.timeParse("%m/%d/%Y %H:%M %p")("9/17/2017 12:00 PM");
@@ -152,9 +175,6 @@ function get_data(){
 
   var ts = d3.selectAll("#"+id+"_path");
 
-
-
-
   if (ts.empty()) {
       d3.csv("cryptodata.csv", function(data){
         var parseDate = d3.timeParse("%m/%d/%Y %H:%M");
@@ -170,7 +190,7 @@ function get_data(){
           filtered_data = data.filter(function(d){return d.id === id;});
           console.log('data')
           console.log(filtered_data)
-          plot_scatter(id);
+          plot_linechart(id);
       })}
     else {
           ts.remove();
@@ -179,12 +199,14 @@ function get_data(){
   }
 
 
-function plot_scatter(id){
+function plot_linechart(id){
+    var color=getcolor(id);
+    console.log(color);
     var line = d3.line()
       .x(function(d) { return time_scale(d.datetime); })
       .y(function(d) { return percent_scale(d.pricech); });
 
-      var g = d3.select("#scatter")
+      var g = d3.select("#linechart")
           .append("g")
               .attr("id", id + "_path")
               .attr("class", id.split("_"));
@@ -192,7 +214,7 @@ function plot_scatter(id){
       g.append("path")
               .datum(filtered_data)
               .attr("fill", "none")
-              .attr("stroke", function(d){return color(d.id);})
+              .attr("stroke", color)
               .attr("stroke-linejoin", "round")
               .attr("stroke-linecap", "round")
               .attr("stroke-width", 1)
@@ -200,62 +222,14 @@ function plot_scatter(id){
 
       }
 
-function gen_stream(data){
-  var n = 4, // number of layers
-      m = 9, // number of samples per layer
-      k = 4; // number of bumps per layer
-  var stack = d3.stack().keys(d3.range(n)).offset(d3.stackOffsetWiggle),
-      layers0 = stack(d3.transpose(d3.range(n).map(function() { return bumps(m, k); }))),
-      layers1 = stack(d3.transpose(d3.range(n).map(function() { return bumps(m, k); }))),
-      layers = layers0.concat(layers1);
-  var svg = d3.select("svg"),
-        width = +svg.attr("width"),
-        height = +svg.attr("height");
-  var x = d3.scaleLinear()
-          .domain([0, m - 1])
-          .range([0, width]);
-  var y = d3.scaleLinear()
-            .domain([d3.min(layers, stackMin), d3.max(layers, stackMax)])
-            .range([height, 0]);
-            var z = d3.interpolateCool;
 
-  var area = d3.area()
-              .x(function(d, i) { return x(i); })
-              .y0(function(d) { return y(d[0]); })
-              .y1(function(d) { return y(d[1]); });
-
-  svg.selectAll("path")
-            .data(layers0)
-            .enter().append("path")
-              .attr("d", area)
-              .attr("fill", function() { return z(Math.random()); });
-
-  function stackMax(layer) {
-            return d3.max(layer, function(d) { return d[1]; });
-          }
-
-  function stackMin(layer) {
-            return d3.min(layer, function(d) { return d[0]; });
-          }
-
-  function transition() {
-            var t;
-            d3.selectAll("path")
-              .data((t = layers1, layers1 = layers0, layers0 = t))
-              .transition()
-                .duration(2500)
-                .attr("d", area);
-          }
-
-
-
-}
 
 
 </script>
 
 <body>
     <h1>Cryptocurrencies</h1>
+    <h2>Background</h2>
     <div id='intro' class='text'>
     <p>Cryptocurrencies are a type of digital currency that work as a medium of exchange. The most commonly known cryptocurrency is Bitcoin
       which was created in 2009. Cryptocurrencies have decentralized control which work use blockchain. Blockchain is a type of cryptography which
@@ -266,27 +240,41 @@ function gen_stream(data){
     </p>
     </div>
     <div id='streamgraph'>
-     <img src="streamgraph_total.png" alt="Streamgraph">
+     <img src="img/streamgraph_total.png" alt="Streamgraph">
     </div>
-    <div id='line' class='text'>
+    <h2>Twitter</h2>
+    <div id='twittertxt' class='text'>
     <p>
-    Recently cryptocurrencies have been covered as topic pieces in the mainstream media but day to day market fluctuations
-    are not covered to the same degree their regulated financial market counterparts. As such, information gathering
+    blah blah twitter blah blah tweets blah  blah blah twitter blah blah tweets blah  blah blah twitter
+    blah blah tweets blah  blah blah twitter blah blah tweets blah
+    blah blah twitter blah blah tweets blah
     </p>
     </div>
-    <div id='div1'>
+    <div id='twittervis'>
+      <img src="img/radial_graph_morning.png" alt="S">
+      <img src="img/radial_graph_evening.png" alt="">
+      <img src="img/doughnut_chart.png" alt="Doughnut chart of hashtags-refer to 'doughtnut.html' for code">
+
+    </div>
+    <div id='linetxt' class='text'>
+    <p>
+    Recently cryptocurrencies have been covered as topic pieces in the mainstream media but day to day market fluctuations
+    are not covered to the same degree as their regulated financial market counterparts. As such, information gathering\
+    can be challening. Our group was interested exploring the relationship between cryptocurrency valuation
+    and information gathering via twitter.
+    </p>
+    </div>
+    <h2>Sentiment Analysis</h2>
+    <div id='sent'>
     <div id="key_div"></div>
-    <div id="scatter_div"></div>
-
-
+    <div id="line_div"></div>
     </div>
 
 
 
     <script>
       gen_legend();
-      draw_scatter();
-      d3.csv("volume.csv", gen_stream);
+      draw_linechart();
 
 
 
