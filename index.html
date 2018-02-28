@@ -587,20 +587,9 @@ function doughtnut(){
         <script>
           var svg = d3.select("#radial").append("svg")
               .attr("width", 900)
-              .attr("height", 100)
+              .attr("height", 80)
 
-          var legendoptions = [{"id": "Bitcoin"}, {"id":"Etherium"}, {"id": "Litecoin"}, {"id": "Xrp"}]
-
-          var text = svg.append("text")
-            .attr("class", "title")
-            .attr('transform', 'translate(90,0)') 
-            .attr("x", 120)
-            .attr("y", 30)
-	    .attr("font-family",'Saira Condensed', serif)
-            .attr("font-size", "30px")
-            .attr("fill", "#404040")
-            .text("Tweets volume of different Cryptocurrency in a day(EST)")
-
+          var legendoptions = [{"id": "Bitcoin"}, {"id":"Etherium"}, {"id": "Litecoin"}, {"id": "Xrp"}
           var colorscale = ["#840fb5", "#158cae", "#01afd4", "#49ac90"]
           var i = 0
 
