@@ -7,7 +7,9 @@
 </head>
 
 <style>
-
+#streamgraph{
+  margin-left:7%
+}
 p{
   margin-top: 20px;
 }
@@ -19,7 +21,6 @@ body{
 .text {
   font-family: 'Saira Condensed', serif;
   font-size: 20px;
-
 }
 h1 {
   font-family: 'Saira Condensed', serif;
@@ -27,14 +28,12 @@ h1 {
   text-align:center;
   color:#840fb5;
 }
-
 h2 {
   font-family: 'Saira Condensed', serif;
   font-size: 30px;
   color: #158cae;
   display: block;
 }
-
 h3{
     font-family: 'Saira Condensed', serif;
     font-size: 25px;
@@ -42,8 +41,6 @@ h3{
     padding: 0px;
     margin: 0px;
     display:block;
-
-
 }
  #div1{
    width: 1300px;
@@ -56,15 +53,12 @@ padding right: 20px;
 width: 960px;
 display: block;
 }
-
 #keydiv{
  padding-left: 40px;
  padding right: 20px;
  width: 960px;
  display: block;
-
 }
-
   .axis path, line{
         stroke:black;
     }
@@ -77,14 +71,21 @@ display: block;
         float:left;
 		    margin: 6px 10px 0px 70px;
     }
-    .key_square:hover{
+    .radial{
+      text-align: center;
+      vertical-align: middle;
+        height:30px;
+        width:100px;
+        outline:solid 1px white;
+        float:left;
+        margin: 6px 10px 0px 70px;
+    }
+    .key_square:hover, .radial:hover{
       opacity:0.5;
     }
-
     .legend {
       font-size: 13px;
     }
-
     rect {
       stroke-width: 2;
     }
@@ -93,6 +94,9 @@ display: block;
     margin: 0 auto;
     position: relative;
     width: 360px;
+    display: inline;
+    float:left;
+    padding-top:2%
   	}
     .tooltip {
     box-shadow: 0 0 5px #999999;
@@ -112,42 +116,28 @@ display: block;
     color: #fff;
     border-radius: 2px;
   	}
-
     .label {
      font-weight: 600;
     }
-
-#chart {
-  width: 40%;
-  float: left;
-  display: inline;
-}
 #doughnut_text{
   width: 60%;
   float: left;
   display: inline;
-
 }
-
 #velocity{
   margin-top: 30px;
   display: block;
   width: 1000px;
-
 }
-
-
 </style>
 <script>
-
 var time_scale,
     percent_scale,
     cost_scale,
     month_scale;
 var filtered_data=[];
 var agg_filter=[];
-var groups=[{'id':'BTC','desc':'Bitcoin'},{'id':'LTC','desc':'LiteCoin'},{'id':'ETH','desc':'Etherium'},{'id':'XRP','desc':'XRP'},{'id':'SENT','desc':'Sentiment'}];
-
+var groups=[{'id':'BTC','desc':'Bitcoin'},{'id':'LTC','desc':'LiteCoin'},{'id':'ETH','desc':'Etherium'},{'id':'XRP2','desc':'XRP'},{'id':'SENT','desc':'Sentiment'}];
 function getcolor(id){
   if (id=='BTC'){
     color="#840fb5";
@@ -158,20 +148,18 @@ function getcolor(id){
   if (id=='ETH'){
     color="#158cae";
   }
-  if (id=='XRP'){
+  if (id=='XRP2'){
     color="#49ac90";
   }
   if (id=='SENT'){
     color="#de2861";
   }
-
   return color
 }
 var color = d3.scaleOrdinal()
    //this assumes you have 3 groups of data//﻿each of the domains corresponds to a color set
-       .domain(['BTC','LTC','ETH','XRP','SENT'])
+       .domain(['BTC','LTC','ETH','XRP2','SENT'])
        .range(["#840fb5", "#01afd4", "#158cae","#49ac90","#de2861"]);
-
 function gen_legend(data){
   var key_items = d3.select("#key_div")
     .selectAll("div")
@@ -182,7 +170,6 @@ function gen_legend(data){
     .attr("height",20)
     .attr("width",300)
     .attr("id",function(d){return d.id});
-
   key_items.append("div")
       .attr("id", function(d){return "key_square_" + d.id})
       .style('background-color', function (d) { return color(d.id) })
@@ -190,12 +177,9 @@ function gen_legend(data){
       .text(function(d){return d.desc})
       .style("color","white")
       .style("font-weight","bold");
-
-
   d3.selectAll(".key_line")
           .on("click", get_data);
   }
-
 function draw_linechart(){
   container_dimensions = {width: 900, height: 400},
   margins = {top: 10, right: 20, bottom: 30, left: 60},
@@ -203,8 +187,6 @@ function draw_linechart(){
       width: container_dimensions.width - margins.left - margins.right,
       height: container_dimensions.height - margins.top - margins.bottom
     };
-
-
   var chart = d3.select("#line_div")
       .append("svg")
         .attr("width", container_dimensions.width)
@@ -212,32 +194,24 @@ function draw_linechart(){
       .append("g")
         .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
         .attr("id","linechart");
-
   var start = d3.timeParse("%m/%d/%Y %H:%M %p")("9/14/2017 8:00 AM");
   var end=d3.timeParse("%m/%d/%Y %H:%M %p")("9/17/2017 12:00 PM");
   console.log(start)
-
     time_scale =  d3.scaleTime()
       .range([0,chart_dimensions.width])
       .domain([start, end]);
-
     percent_scale = d3.scaleLinear()
       .range([chart_dimensions.height, 0])
       .domain([-0.5,.5]);
-
     var time_axis = d3.axisBottom(time_scale);
-
     var count_axis = d3.axisLeft(percent_scale);
-
     chart.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + chart_dimensions.height + ")")
       .call(time_axis);
-
   chart.append("g")
 	   .attr("class", "y axis")
 	    .call(count_axis);
-
   d3.select(".y.axis")
     .append("text")
 	   .attr("text-anchor","middle")
@@ -246,26 +220,20 @@ function draw_linechart(){
     .attr("x",  container_dimensions.height/2)
     .attr("y", 50);
       };
-
 function get_data(){
   // get the id of the current element
   var id = d3.select(this).attr("id");
   // see if we have an associated time series
-
   var ts = d3.selectAll("#"+id+"_path");
-
   if (ts.empty()) {
       d3.csv("cryptodata.csv", function(data){
         var parseDate = d3.timeParse("%m/%d/%Y %H:%M");
-
         data.forEach(function(d) {
           d.datetime_s=d.datetime
            d.datetime=parseDate(d.datetime);
            d.wtgsent= +d.wtgsent;
            d.pricech= +d.pricech;
           });
-
-
           filtered_data = data.filter(function(d){return d.id === id;});
           console.log('data')
           console.log(filtered_data)
@@ -273,17 +241,14 @@ function get_data(){
       })}
     else {
           ts.remove();
-
       };
   }
-
 function plot_linechart(id){
     var color=getcolor(id);
     console.log(color);
     var line = d3.line()
       .x(function(d) { return time_scale(d.datetime); })
       .y(function(d) { return percent_scale(d.pricech); });
-
       var g = d3.select("#linechart")
           .append("g")
               .attr("id", id + "_path")
@@ -297,39 +262,28 @@ function plot_linechart(id){
               .attr("stroke-linecap", "round")
               .attr("stroke-width", 2)
               .attr("d", line);
-
       }
-
-
-
       var tooltip = d3.select('#chart')
         .append('div')
         .attr('class', 'tooltip');
-
       tooltip.append('div')
         .attr('class', 'label');
-
       tooltip.append('div')
         .attr('class', 'count');
-
       tooltip.append('div')
         .attr('class', 'percent');
-
               var dataset = [
                 {id: "Bitcoin", value: 25276},
             		{id: "Etherium", value: 5197},
             		{id: "LiteCoin", value: 10625},
            		  {id: "XRP", value: 5017},
               ];
-
               var width = 360;
               var height = 360;
               var radius = Math.min(width, height) / 2;
-
               var color2 = d3.scaleOrdinal(d3.schemeCategory20c)
               .domain(['Bitcoin','LiteCoin','Etherium','XRP'])
               .range(["#840fb5", "#01afd4", "#158cae","#49ac90"]);
-
               var svg = d3.select('#chart')
                 .append('svg')
                 .attr('width', width)
@@ -337,20 +291,15 @@ function plot_linechart(id){
                 .append('g')
                 .attr('transform', 'translate(' + (width / 2) +
                   ',' + (height / 2) + ')');
-
               var donutWidth = 75;
-
               var arc = d3.arc()
                 .innerRadius(radius - donutWidth)
                 .outerRadius(radius);
-
               var pie = d3.pie()
                 .value(function(d) { return d.value; })
                 .sort(null);
-
               var legendRectSize = 18;
       				var legendSpacing = 4;
-
               var path = svg.selectAll('path')
                 .data(pie(dataset))
                 .enter()
@@ -358,9 +307,7 @@ function plot_linechart(id){
                 .attr('d', arc)
                 .attr('fill', function(d, i) {
                   return color2(d.data.id);
-
                 });
-
               path.on('mouseover', function(d) {
         var total = d3.sum(dataset.map(function(d) {
           return d.value;
@@ -371,11 +318,9 @@ function plot_linechart(id){
         tooltip.select('.percent').html(percent + '%');
         tooltip.style('display', 'block');
       });
-
               path.on('mouseout', function() {
         tooltip.style('display', 'none');
       });
-
         var legend = svg.selectAll('.legend')
         .data(color.domain())
         .enter()
@@ -388,47 +333,37 @@ function plot_linechart(id){
           var vert = i * height - offset;
           return 'translate(' + horz + ',' + vert + ')';
         });
-
         legend.append('rect')
         .attr('width', legendRectSize)
         .attr('height', legendRectSize)
         .style('fill', color)
         .style('stroke', color);
-
               legend.append('text')
         .attr('x', legendRectSize + legendSpacing)
         .attr('y', legendRectSize - legendSpacing)
         .text(function(d) { return d; });
-
 function doughtnut(){
   var tooltip = d3.select('#chart')
     .append('div')
     .attr('class', 'tooltip');
-
   tooltip.append('div')
     .attr('class', 'label');
-
   tooltip.append('div')
     .attr('class', 'count');
-
   tooltip.append('div')
     .attr('class', 'percent');
-
           var dataset = [
             {id: "Bitcoin", value: 25276},
         		{id: "Etherium", value: 5197},
         		{id: "LiteCoin", value: 10625},
        		  {id: "XRP", value: 5017},
           ];
-
           var width = 300;
           var height = 300;
           var radius = Math.min(width, height) / 2;
-
           var color = d3.scaleOrdinal(d3.schemeCategory20c)
           .domain(['Bitcoin','LiteCoin','Etherium','XRP'])
           .range(["#840fb5", "#01afd4", "#158cae","#49ac90"]);
-
           var svg = d3.select('#chart')
             .append('svg')
             .attr('width', width)
@@ -436,20 +371,15 @@ function doughtnut(){
             .append('g')
             .attr('transform', 'translate(' + (width / 2) +
               ',' + (height / 2) + ')');
-
           var donutWidth = 75;
-
           var arc = d3.arc()
             .innerRadius(radius - donutWidth)
             .outerRadius(radius);
-
           var pie = d3.pie()
             .value(function(d) { return d.value; })
             .sort(null);
-
           var legendRectSize = 18;
   				var legendSpacing = 4;
-
           var path = svg.selectAll('path')
             .data(pie(dataset))
             .enter()
@@ -457,9 +387,7 @@ function doughtnut(){
             .attr('d', arc)
             .attr('fill', function(d, i) {
               return color(d.data.id);
-
             });
-
           path.on('mouseover', function(d) {
     var total = d3.sum(dataset.map(function(d) {
       return d.value;
@@ -470,11 +398,9 @@ function doughtnut(){
     tooltip.select('.percent').html(percent + '%');
     tooltip.style('display', 'block');
   });
-
           path.on('mouseout', function() {
     tooltip.style('display', 'none');
   });
-
     var legend = svg.selectAll('.legend')
     .data(color.domain())
     .enter()
@@ -487,22 +413,16 @@ function doughtnut(){
       var vert = i * height - offset;
       return 'translate(' + horz + ',' + vert + ')';
     });
-
           legend.append('rect')
     .attr('width', legendRectSize)
     .attr('height', legendRectSize)
     .style('fill', color)
     .style('stroke', color);
-
           legend.append('text')
     .attr('x', legendRectSize + legendSpacing)
     .attr('y', legendRectSize - legendSpacing)
     .text(function(d) { return d; });
-
 }
-
-
-
 </script>
 
 <body>
@@ -549,150 +469,124 @@ function doughtnut(){
       <div id="velocity" class="text">
         <h3>Velocity</h3>
         <p>
-          The two polar charts below shows the volume of tweets at each hour in a day, the left chart indicates the tweets volume between 0:00-12:00 EST, and the right chart indicates the tweets volume between 12:00-24:00 EST. As is shown in the chart, Bitcoin is the major topic on Twitter at anytime. The tweets volume had reached a peak point between 17:00 to 18:00 EST and 19:00 to 20:00 EST, it might have suggested that these tweets volume are from wWestern Hemisphere, because at this time people were sleeping at Estern Hemisphere.
+The two polar charts below describe the total volume of tweets at each hour in a day, the left chart indicates the tweets volume between 0:00-12:00 EST, and the right chart indicates the tweets volume between 12:00-24:00 EST. As is shown in the chart, Bitcoin is the major topic on Twitter throughout the day. The tweets volume reached a peak point between 17:00 to 18:00 EST and 19:00 to 20:00 EST. This may suggest that many of the tweets are being generated from the Western Hemisphere.
         </p>
       </div>
       <div id="radial">
 	<style>
-
 	.frame {
 	  fill: none;
 	  stroke: #000;
 	}
-
 	.axis text {
 	  font: 10px sans-serif;
 	}
-
 	.axis line,
 	.axis circle {
 	  fill: none;
 	  stroke: #777;
 	  stroke-dasharray: 1,4;
 	}
-
 	.axis :last-of-type circle {
 	  stroke: #333;
 	  stroke-dasharray: none;
 	}
-
 	.line {
 	  fill: none;
 	  stroke: red;
 	  stroke-width: 1.5px;
 	}
-
 	</style>
         <script src="tweetsvolume_data.js"></script>
         <script>
 	  var svg = d3.select("#radial").append("svg")
 	      .attr("width", 960)
 	      .attr("height", 100)
-
 	  var legendoptions = [{"id": "Bitcoin"}, {"id":"Etherium"}, {"id": "Litecoin"}, {"id": "Xrp"}]
 	  var colorscale = ["#840fb5", "#158cae", "#01afd4", "#49ac90"]
-
 	  var width = 480,
 	      height = 350,
 	      radius = 550 / 2 - 150;
-
 	  var r = d3.scaleLinear()
 	      .domain([0, .5])
 	      .range([0, radius]);
-
 	  var line = d3.radialLine()
 	      .radius(function(d) { return r(d[1]); })
 	      .angle(function(d) { return -d[0] + Math.PI / 2; });
-
 	  var svg1 = d3.select("#radial").append("svg")
 	      .attr("width", width)
 	      .attr("height", height)
 	      .append("g")
 	      .attr("transform", "translate(" + (width/2)+ "," + height / 2 + ")");
-
-
 	  var gr = svg1.append("g")
 	      .attr("class", "r axis")
 	    .selectAll("g")
 	      .data(r.ticks(5).slice(1))
 	    .enter().append("g");
-
 	  gr.append("circle")
 	      .attr("r", r);
-
 	  gr.append("text")
 	      .attr("y", function(d) { return -r(d) - 4; })
 	      .attr("transform", "rotate(15)")
 	      .style("text-anchor", "middle")
 	      .text(function(d) { return d*300; });
-
 	  var ga = svg1.append("g")
 	      .attr("class", "a axis")
 	    .selectAll("g")
 	      .data(d3.range(0, 360, 30))
 	    .enter().append("g")
 	      .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
-
 	  ga.append("line")
 	      .attr("x2", radius );
-
 	  ga.append("text")
 	      .attr("x", radius + 6)
 	      .attr("dy", ".35em")
 	      .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
 	      .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
 	      .text(function(d) { return d/30 + ":00"; });
-
 	  var svg2 = d3.select("#radial").append("svg")
 	      .attr("width", width)
 	      .attr("height", height)
 	    .append("g")
 	      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
 	  var gr = svg2.append("g")
 	      .attr("class", "r axis")
 	    .selectAll("g")
 	      .data(r.ticks(5).slice(1))
 	    .enter().append("g");
-
 	  gr.append("circle")
 	      .attr("r", r);
-
 	  gr.append("text")
 	      .attr("y", function(d) { return -r(d) - 4; })
 	      .attr("transform", "rotate(15)")
 	      .style("text-anchor", "middle")
 	      .text(function(d) { return d*1800; });
-
 	  var ga = svg2.append("g")
 	      .attr("class", "a axis")
 	    .selectAll("g")
 	      .data(d3.range(0, 360, 30))
 	    .enter().append("g")
 	      .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
-
 	  ga.append("line")
 	      .attr("x2", radius );
-
 	  ga.append("text")
 	      .attr("x", radius + 6)
 	      .attr("dy", ".35em")
 	      .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
 	      .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
 	      .text(function(d) { return (d/30) +12 + ":00"; });
-
 	  //--------------------Bitcoin-------------------
 	  var i = 0
 	  var bar = svg.append("rect")
-	    .attr("class", "Bitcoin")
-	    .attr('transform', 'translate(90,0)') 
+	    .attr("class", "radial")
+	    .attr('transform', 'translate(90,0)')
 	    .attr("x", 114)
 	    .attr("y", 50)
-	    .attr("width", 80)
-	    .attr("height", 25)
+      .attr("height",20)
+      .attr("width",300)
 	    .style("fill", "#840fb5")
 	    .style("opacity", 1)
-	    .on("click", function(d) { 
+	    .on("click", function(d) {
 		d3.select(this).style("opacity",0.5)
 		if(i==0){
 		  i=i+1
@@ -711,7 +605,6 @@ function doughtnut(){
 		  .on("mouseout",function(d) {
 		    d3.select(this).style("opacity", 0.5)
 		  })
-
 		  svg2.append("g")
 		    .attr("id", "Bitcoin")
 		    .append("path")
@@ -728,13 +621,10 @@ function doughtnut(){
 		    .on("mouseout",function(d) {
 		      d3.select(this).style("opacity", 0.5)
 		    });
-
-
 		}
 		else{
 		  d3.select(this).style("opacity",1)
 		  d3.selectAll("#Bitcoin").remove()
-
 		  i=i-1
 		}
 	      }
@@ -742,15 +632,15 @@ function doughtnut(){
 	  //-----------------------eth--------
 	  var j = 0
 	  var bar = svg.append("rect")
-	    .attr("class", "Etherium")
-	    .attr('transform', 'translate(90,0)') 
+	    .attr("class", "radial")
+	    .attr('transform', 'translate(90,0)')
 	    .attr("x", 265)
 	    .attr("y", 50)
-	    .attr("width", 100)
-	    .attr("height", 25)
+	    .attr("width", 300)
+	    .attr("height", 20)
 	    .style("fill", "#158cae")
 	    .style("opacity", 1)
-	    .on("click", function(d) { 
+	    .on("click", function(d) {
 		d3.select(this).style("opacity",0.5)
 		if(j==0){
 		  d3.select(this).style("opacity",0.5)
@@ -770,9 +660,8 @@ function doughtnut(){
 		  .on("mouseout",function(d) {
 		    d3.select(this).style("opacity", 0.5)
 		  });
-
 		  svg2.append("g")
-		    .attr("id", "Etherium")
+		    .attr("class", "radial")
 		    .append("path")
 		    .datum(eth24)
 		    .attr("class", "line")
@@ -787,51 +676,38 @@ function doughtnut(){
 		    .on("mouseout",function(d) {
 		      d3.select(this).style("opacity", 0.5)
 		    });
-
-
 		}
 		else{
 		  d3.select(this).style("opacity",1)
 		  d3.selectAll("#Etherium").remove()
-
 		  j=j-1
 		}
 	      }
 	    )
-
 	  //--------------------Litcoin-------------------
 	  var n = 0
 	  var bar = svg.append("rect")
-	    .attr("class", "Litecoin")
-	    .attr('transform', 'translate(90,0)') 
+	    .attr("class", "radial")
+	    .attr('transform', 'translate(90,0)')
 	    .attr("x", 420)
 	    .attr("y", 50)
-	    .attr("width", 80)
-	    .attr("height", 25)
 	    .style("fill", "#01afd4")
 	    .style("opacity", 1)
-	    .on("click", function(d) { 
+	    .on("click", function(d) {
 		d3.select(this).style("opacity",0.5)
 		if(n==0){
 		  n=n+1
 		  svg1.append("g")
-		  .attr("id","Litecoin")
+		  .attr("class","radial")
 		  .append("path")
 		  .datum(lit12)
 		  .attr("class", "line")
 		  .attr("d", line)
 		  .style("stroke", "#01afd4")
 		  .style("fill", "#01afd4")
-		  .style("opacity", 0.5)
-		  .on("mouseover", function(d) {
-		    d3.select(this).style("opacity", 1)
-		  })
-		  .on("mouseout",function(d) {
-		    d3.select(this).style("opacity", 0.5)
-		  });
-
+;
 		  svg2.append("g")
-		    .attr("id", "Litecoin")
+		    .attr("class", "radial")
 		    .append("path")
 		    .datum(lit24)
 		    .attr("class", "line")
@@ -846,31 +722,27 @@ function doughtnut(){
 		    .on("mouseout",function(d) {
 		      d3.select(this).style("opacity", 0.5)
 		    });
-
-
 		}
 		else{
 		  d3.select(this).style("opacity",1)
 		  d3.selectAll("#Litecoin").remove()
-
 		  n=n-1
 		}
 	      }
 	    )
-
 	  //--------------------Xrp-------------------
 	  var m = 0
 	  var bar = svg.append("rect")
-	    .attr("class", "Xrp")
-	    .attr('transform', 'translate(90,0)') 
+	    .attr("class", "radial")
+	    .attr('transform', 'translate(90,0)')
 	    .attr("x", 560)
 	    .attr("y", 50)
-	    .attr("width", 60)
-	    .attr("height", 25)
+      .attr("height",20)
+      .attr("width",300)
 	    .style("fill", "#49ac90")
 	    .style("opacity", 1)
-	    .on("click", function(d) { 
-		d3.select(this).style("opacity",0.5)
+	    .on("click", function(d) {
+    d3.select(this).style("opacity",0.5)
 		if(m==0){
 		  m=m+1
 		  svg1.append("g")
@@ -888,9 +760,8 @@ function doughtnut(){
 		  .on("mouseout",function(d) {
 		    d3.select(this).style("opacity", 0.5)
 		  });
-
 		  svg2.append("g")
-		    .attr("id", "Xrp")
+		    .attr("class", "radial")
 		    .append("path")
 		    .datum(xrp24)
 		    .attr("class", "line")
@@ -905,24 +776,19 @@ function doughtnut(){
 		    .on("mouseout",function(d) {
 		      d3.select(this).style("opacity", 0.5)
 		    });
-
-
 		}
 		else{
 		  d3.select(this).style("opacity",1)
 		  d3.selectAll("#Xrp").remove()
-
 		  m=m-1
 		}
 	      }
 	    )
-
 	  var legend = svg.selectAll(".legend")
 	      .data(legendoptions.map(function(d){ return d.id}))
 	      .enter().append("g")
 	      .attr("transform", function(d,i) {return "translate(" +(i*150+200)+"," +   60+")"})
 	      .attr("class", "legend")
-
 	  legend.append("text")
 	      .text(function(d) {return d})
 	      .style("font-size", 20)
@@ -957,7 +823,6 @@ function doughtnut(){
       gen_legend();
       draw_linechart();
       doughtnut();
-
   </script>
 </body>
 </script>
