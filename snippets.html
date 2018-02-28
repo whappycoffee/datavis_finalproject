@@ -1,20 +1,61 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script type="text/javascript" src="https://rawgithub.com/NickQiZhu/dc.js/master/web/js/crossfilter.js"></script>
 <head>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
+
 <link rel="icon" href="data:;base64,=">
 </head>
 
 <style>
+#velocity{
+  margin-top: 30px;
+  display: inline;
 
+}
+body{
+  margin: 4%;
+}
+.text {
+  font-family: 'Saira Condensed', serif;
+  font-size: 20px;
+
+}
+h1 {
+  font-family: 'Saira Condensed', serif;
+  font-size: 50px;
+  text-align:center;
+  color:#840fb5;
+}
+
+h2 {
+  font-family: 'Saira Condensed', serif;
+  font-size: 30px;
+  color: #158cae;
+  display: block;
+}
+
+h3{
+    font-family: 'Saira Condensed', serif;
+    font-size: 25px;
+    color: #01afd4;
+    padding: 0px;
+    margin: 0px;
+    display:block;
+
+
+}
  #div1{
    width: 1300px;
    display: block;
    padding-left: 300px;
  }
-#line_div{padding-left: 40px;
+#line_div{
+padding-left: 40px;
 padding right: 20px;
 width: 960px;
-display: block;}
+display: block;
+}
+
 #keydiv{
  padding-left: 40px;
  padding right: 20px;
@@ -22,35 +63,70 @@ display: block;}
  display: block;
 
 }
- .key_label{
-   float: left;
-   display: float;
-   width: 100px;
 
-
-
- }
   .axis path, line{
         stroke:black;
     }
-
-
-
     .key_square{
-       margin-left:50px;
-        height:10px;
-        width:10px;
-        outline:solid 1px black;
+      text-align: center;
+      vertical-align: middle;
+        height:30px;
+        width:100px;
+        outline:solid 1px white;
         float:left;
-		     margin: 6px 10px 0px 10px;
+		    margin: 6px 10px 0px 70px;
     }
-    #bar_div{
-      height: 400px;
-      width:900px;
+    .key_square:hover{
+      opacity:0.5;
     }
-    #scatter{
-        float:left;
+
+    .legend {
+      font-size: 13px;
     }
+
+    rect {
+      stroke-width: 2;
+    }
+    #chart {
+    height: 360px;
+    margin: 0 auto;
+    position: relative;
+    width: 360px;
+  	}
+    .tooltip {
+    box-shadow: 0 0 5px #999999;
+    display: none;
+    font-size: 12px;
+    left: 130px;
+    padding: 10px;
+    position: absolute;
+    text-align: center;
+    top: 95px;
+    width: 80px;
+    z-index: 10;
+    line-height: 140%; /*Interlineado*/
+    font-family: "Open Sans", sans-serif;
+    font-weight: 300;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+  	}
+
+    .label {
+     font-weight: 600;
+    }
+
+#chart {
+  width: 32%;
+  float: left;
+  display: inline;
+}
+#doughnut_text{
+  width: 60%;
+  float: left;
+  display: inline;
+
+}
 
 
 </style>
@@ -66,19 +142,19 @@ var groups=[{'id':'BTC','desc':'Bitcoin'},{'id':'LTC','desc':'LiteCoin'},{'id':'
 
 function getcolor(id){
   if (id=='BTC'){
-    color="#fb5454";
+    color="#840fb5";
   }
   if (id=='LTC'){
-    color="#f1fb54";
+    color="#01afd4";
   }
   if (id=='ETH'){
-    color="#54befb";
+    color="#158cae";
   }
   if (id=='XRP'){
-    color="#fffff";
+    color="#49ac90";
   }
   if (id=='SENT'){
-    color="#000000";
+    color="#de2861";
   }
 
   return color
@@ -86,8 +162,7 @@ function getcolor(id){
 var color = d3.scaleOrdinal()
    //this assumes you have 3 groups of data//﻿each of the domains corresponds to a color set
        .domain(['BTC','LTC','ETH','XRP','SENT'])
-       .range(["#fb5454", "#f1fb54", "#54befb","#fffff","#000000"]);
-
+       .range(["#840fb5", "#01afd4", "#158cae","#49ac90","#de2861"]);
 
 function gen_legend(data){
   var key_items = d3.select("#key_div")
@@ -103,17 +178,15 @@ function gen_legend(data){
   key_items.append("div")
       .attr("id", function(d){return "key_square_" + d.id})
       .style('background-color', function (d) { return color(d.id) })
-      .attr("class", "key_square");
+      .attr("class", "key_square")
+      .text(function(d){return d.desc})
+      .style("color","white")
+      .style("font-weight","bold");
 
-  key_items.append("div")
-      .attr("class","key_label")
-      .text(function(d){return d.desc});
 
   d3.selectAll(".key_line")
-                .on("click", get_data);
+          .on("click", get_data);
   }
-
-
 
 function draw_linechart(){
   container_dimensions = {width: 900, height: 400},
@@ -166,8 +239,6 @@ function draw_linechart(){
     .attr("y", 50);
       };
 
-
-
 function get_data(){
   // get the id of the current element
   var id = d3.select(this).attr("id");
@@ -198,7 +269,6 @@ function get_data(){
       };
   }
 
-
 function plot_linechart(id){
     var color=getcolor(id);
     console.log(color);
@@ -217,67 +287,290 @@ function plot_linechart(id){
               .attr("stroke", color)
               .attr("stroke-linejoin", "round")
               .attr("stroke-linecap", "round")
-              .attr("stroke-width", 1)
+              .attr("stroke-width", 2)
               .attr("d", line);
 
       }
 
 
 
+      var tooltip = d3.select('#chart')
+        .append('div')
+        .attr('class', 'tooltip');
+
+      tooltip.append('div')
+        .attr('class', 'label');
+
+      tooltip.append('div')
+        .attr('class', 'count');
+
+      tooltip.append('div')
+        .attr('class', 'percent');
+
+              var dataset = [
+                {id: "Bitcoin", value: 25276},
+            		{id: "Etherium", value: 5197},
+            		{id: "LiteCoin", value: 10625},
+           		  {id: "XRP", value: 5017},
+              ];
+
+              var width = 360;
+              var height = 360;
+              var radius = Math.min(width, height) / 2;
+
+              var color2 = d3.scaleOrdinal(d3.schemeCategory20c)
+              .domain(['Bitcoin','LiteCoin','Etherium','XRP'])
+              .range(["#840fb5", "#01afd4", "#158cae","#49ac90"]);
+
+              var svg = d3.select('#chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', 'translate(' + (width / 2) +
+                  ',' + (height / 2) + ')');
+
+              var donutWidth = 75;
+
+              var arc = d3.arc()
+                .innerRadius(radius - donutWidth)
+                .outerRadius(radius);
+
+              var pie = d3.pie()
+                .value(function(d) { return d.value; })
+                .sort(null);
+
+              var legendRectSize = 18;
+      				var legendSpacing = 4;
+
+              var path = svg.selectAll('path')
+                .data(pie(dataset))
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', function(d, i) {
+                  return color2(d.data.id);
+
+                });
+
+              path.on('mouseover', function(d) {
+        var total = d3.sum(dataset.map(function(d) {
+          return d.value;
+        }));
+        var percent = Math.round(1000 * d.data.value / total) / 10;
+        tooltip.select('.label').html(d.data.id);
+        tooltip.select('.count').html(d.data.value);
+        tooltip.select('.percent').html(percent + '%');
+        tooltip.style('display', 'block');
+      });
+
+              path.on('mouseout', function() {
+        tooltip.style('display', 'none');
+      });
+
+        var legend = svg.selectAll('.legend')
+        .data(color.domain())
+        .enter()
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', function(d, i) {
+          var height = legendRectSize + legendSpacing;
+          var offset =  height * color.domain().length / 2;
+          var horz = -2 * legendRectSize;
+          var vert = i * height - offset;
+          return 'translate(' + horz + ',' + vert + ')';
+        });
+
+        legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', color)
+        .style('stroke', color);
+
+              legend.append('text')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(function(d) { return d; });
+
+function doughtnut(){
+  var tooltip = d3.select('#chart')
+    .append('div')
+    .attr('class', 'tooltip');
+
+  tooltip.append('div')
+    .attr('class', 'label');
+
+  tooltip.append('div')
+    .attr('class', 'count');
+
+  tooltip.append('div')
+    .attr('class', 'percent');
+
+          var dataset = [
+            {id: "Bitcoin", value: 25276},
+        		{id: "Etherium", value: 5197},
+        		{id: "LiteCoin", value: 10625},
+       		  {id: "XRP", value: 5017},
+          ];
+
+          var width = 300;
+          var height = 300;
+          var radius = Math.min(width, height) / 2;
+
+          var color = d3.scaleOrdinal(d3.schemeCategory20c)
+          .domain(['Bitcoin','LiteCoin','Etherium','XRP'])
+          .range(["#840fb5", "#01afd4", "#158cae","#49ac90"]);
+
+          var svg = d3.select('#chart')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', 'translate(' + (width / 2) +
+              ',' + (height / 2) + ')');
+
+          var donutWidth = 75;
+
+          var arc = d3.arc()
+            .innerRadius(radius - donutWidth)
+            .outerRadius(radius);
+
+          var pie = d3.pie()
+            .value(function(d) { return d.value; })
+            .sort(null);
+
+          var legendRectSize = 18;
+  				var legendSpacing = 4;
+
+          var path = svg.selectAll('path')
+            .data(pie(dataset))
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', function(d, i) {
+              return color(d.data.id);
+
+            });
+
+          path.on('mouseover', function(d) {
+    var total = d3.sum(dataset.map(function(d) {
+      return d.value;
+    }));
+    var percent = Math.round(1000 * d.data.value / total) / 10;
+    tooltip.select('.label').html(d.data.id);
+    tooltip.select('.count').html(d.data.value);
+    tooltip.select('.percent').html(percent + '%');
+    tooltip.style('display', 'block');
+  });
+
+          path.on('mouseout', function() {
+    tooltip.style('display', 'none');
+  });
+
+    var legend = svg.selectAll('.legend')
+    .data(color.domain())
+    .enter()
+    .append('g')
+    .attr('class', 'legend')
+    .attr('transform', function(d, i) {
+      var height = legendRectSize + legendSpacing;
+      var offset =  height * color.domain().length / 2;
+      var horz = -2 * legendRectSize;
+      var vert = i * height - offset;
+      return 'translate(' + horz + ',' + vert + ')';
+    });
+
+          legend.append('rect')
+    .attr('width', legendRectSize)
+    .attr('height', legendRectSize)
+    .style('fill', color)
+    .style('stroke', color);
+
+          legend.append('text')
+    .attr('x', legendRectSize + legendSpacing)
+    .attr('y', legendRectSize - legendSpacing)
+    .text(function(d) { return d; });
+
+}
+
+
 
 </script>
 
 <body>
-    <h1>Cryptocurrencies</h1>
-    <h2>Background</h2>
+    <h1>CRYPTIC TWEETS</h1>
+    <h2>BACKGROUND</h2>
     <div id='intro' class='text'>
-    <p>Cryptocurrencies are a type of digital currency that work as a medium of exchange. The most commonly known cryptocurrency is Bitcoin
-      which was created in 2009. Cryptocurrencies have decentralized control which work use blockchain. Blockchain is a type of cryptography which
-      allows for secure transactions to control the creation of units and verify the transfer of assets(source: https://en.wikipedia.org/wiki/Cryptocurrency).
+    <p>What is a cryptocurrency? At the most basic level, cryptocurrencies are a decentralized digital medium of exchange. Unlike their centralized financial counterparts, cryptocurrencies are not maintained by oversite organizations or a central server. But rather, transactions are recorded in a public ledger built on blockchain technology. The value of the cryptocurrencies fluctuate  relative to other currency forms and thus can be traded for profit.</p>
+    <p> PROFIT! Now I have your attention. In recent months, cryptocurrencies have moved away from being an obscure tech currency to being covered in more mainstream media. The visualization provided below is a stream chart that describes volume fluctuations in trading for a few of the more mainstream cryptocurrencies.
     </p>
-    <p>Over the past year, cryptocurrencies have undergone a surge in popularity. The graphic below daily volume traded for numerous cryptocurrencies.
-      As you can see, a significant surge in trading began in late may and this uptick has continued on.
-    </p>
-    </div>
     <div id='streamgraph'>
      <img src="img/streamgraph_total.png" alt="Streamgraph">
     </div>
-    <h2>Twitter</h2>
+    <h2>THE IDEA</h2>
+    <div class='text'>
+      <p>
+    In late spring 2017 the market experienced a significant uptick in trading volume as can be observed in the stream graph. The interest of one of our team members was peaked by this increase in trading. The outcome of this peaked interested was a researchable question: what information sources could an individual or organization using to monitor and track the cryptocurrency market.
+  </p>
+    <p>
+      Looking through mainstream media it would not be difficult to find topic pieces on cryptocurrencies. Articles on this topic have been covered by media outlets such as the New York Times, Fortune and The Atlantic. Despite this increase in coverage, cryptocurrency markets are not covered in the same fashion as their centralized financial counterparts. Twitter seemed like the most obvious candidate. The twitter-sphere is similar to the cryptocurrency environment in that it is also highly unregulated and attracts a segment of the population actively engaged with technology.
+    </p>
+    </div>
+
+    <h2>THE DATA</h2>
     <div id='twittertxt' class='text'>
     <p>
-    blah blah twitter blah blah tweets blah  blah blah twitter blah blah tweets blah  blah blah twitter
-    blah blah tweets blah  blah blah twitter blah blah tweets blah
-    blah blah twitter blah blah tweets blah
-    </p>
-    </div>
+      Twitter maintains a public API through which users can query the twitter data stream on topics of interest. The dataset for this analysis was developed by querying the twitter stream three times daily over the course of five days. The keywords used to query the API were types of cryptocurrencies. The names of which included Bitcoin, Etherium, Litecoin and XRP.
+
+</p>
+</div>
     <div id='twittervis'>
-      <img src="img/radial_graph_morning.png" alt="S">
-      <img src="img/radial_graph_evening.png" alt="">
-      <img src="img/doughnut_chart.png" alt="Doughnut chart of hashtags-refer to 'doughtnut.html' for code">
+      <div id="chart">
+      </div>
+      <div id="doughnut_text">
+        <p>
+          One of the first steps in understanding an information stream is to determine the volume and velocity at which data is being generated. In this context, the unit of data is a tweet the volume is the number of tweets and the velocity is the speed at which they are produced.
+
+        </p>
+        <h3>Volume</h3>
+        <p>
+        The visualization on the left shows the total volume of the tweets by currency collected during the data collection period. As can be seen in this visualization, over 50% of the tweets included Bitcoin as a key word. Bitcoin was the first cryptocurrency to be invented and remains one of the most traded currencies and this result is therefore unsurprising.
+        </p>
+      </div>
+      <div id="velocity" class="text">
+        <h3>Velocity</h3>
+        <p>
+          blah blah time of day blah blah blah......
+        </p>
+      </div>
+      <div id="radial">
+        <img src="img/streamgraph_total.png" alt="Streamgraph">
+    </div>
 
     </div>
-    <div id='linetxt' class='text'>
+    <h2>WHAT THE TWEET?</h2>
+    <div id='sent' class='text'>
+      The primary question of interest for this analysis was whether data contained in tweets could be used to gather information about the cryptocurrency markets. To achieve this goal, a natural language processing python library was used to analyze the sentiment of the tweets. The polarity of the tweet was defined as a number between -1 and 1 rating the degree of negativity or positivity in the language of the tweet. The results of the analysis are provided in the visualization below.
+      The change in sentiment was calculated for all the tweets as well as by cryptocurrency. The results for average sentiment by cryptocurrency proved unreliable. This is unsurprising given the smaller sample size of tweets associated with individual cryptocurrencies.  However, the results for the sentiment values calculated using all tweets proved promising.
     <p>
-    Recently cryptocurrencies have been covered as topic pieces in the mainstream media but day to day market fluctuations
-    are not covered to the same degree as their regulated financial market counterparts. As such, information gathering\
-    can be challening. Our group was interested exploring the relationship between cryptocurrency valuation
-    and information gathering via twitter.
+
     </p>
     </div>
-    <h2>Sentiment Analysis</h2>
     <div id='sent'>
     <div id="key_div"></div>
     <div id="line_div"></div>
     </div>
-
-
+    <h2>THE TAKE AWAY</h2>
+    <div id='conc' class='text'>
+    <p>
+      For organizations interested in the cryptocurrency markets, twitter has the potential to be a valuable information source. The average sentiment of all tweets related to the cryptocurrencies of interest experienced value fluctuations that mimicked the market. Monitoring twitter via a live data stream set to query keywords can be implemented in a straightforward manner. Therefore, setting up mechanisms to monitoring and analyzing the sentiment of tweets would likely be an asset to organizations interested in financial modeling related to cryptocurrencies
+    </p>
+    </div>
 
     <script>
       gen_legend();
       draw_linechart();
-
-
-
+      doughtnut();
 
   </script>
 </body>
