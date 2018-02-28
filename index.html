@@ -585,343 +585,351 @@ function doughtnut(){
 	</style>
         <script src="tweetsvolume_data.js"></script>
         <script>
-          var svg = d3.select("#radial").append("svg")
-              .attr("width", 900)
-              .attr("height", 100)
+	var svg = d3.select("#radial").append("svg")
+	    .attr("width", 960)
+	    .attr("height", 100)
 
-          var legendoptions = [{"id": "Bitcoin"}, {"id":"Etherium"}, {"id": "Litecoin"}, {"id": "Xrp"}
-          var colorscale = ["#840fb5", "#158cae", "#01afd4", "#49ac90"]
-          var i = 0
+	var legendoptions = [{"id": "Bitcoin"}, {"id":"Etherium"}, {"id": "Litecoin"}, {"id": "Xrp"}]
+	var colorscale = ["#840fb5", "#158cae", "#01afd4", "#49ac90"]
 
-          var legend = svg.selectAll(".legend")
-              .data(legendoptions.map(function(d){ return d.id}))
-              .enter().append("g")
-              .attr("transform", function(d,i) {return "translate(" +(i*100+300)+"," +   70+")"})
-              .attr("class", "legend")
+	var width = 480,
+	    height = 350,
+	    radius = 600 / 2 - 150;
 
-          legend.append("text")
-              .text(function(d) {return d})
-              .style("font-size", 15)
-              .attr("x",15)
-              .attr("y",25)
+	var r = d3.scaleLinear()
+	    .domain([0, .5])
+	    .range([0, radius]);
 
-          var width = 450,
-              height = 350,
-              radius = 480 / 2 - 150;
+	var line = d3.radialLine()
+	    .radius(function(d) { return r(d[1]); })
+	    .angle(function(d) { return -d[0] + Math.PI / 2; });
 
-          var r = d3.scaleLinear()
-              .domain([0, .5])
-              .range([0, radius]);
-
-          var line = d3.radialLine()
-              .radius(function(d) { return r(d[1]); })
-              .angle(function(d) { return -d[0] + Math.PI / 2; });
-
-          var svg1 = d3.select("#radial").append("svg")
-              .attr("width", width)
-              .attr("height", height)
-              .append("g")
-              .attr("transform", "translate(" + (width/2)+ "," + height / 2 + ")");
+	var svg1 = d3.select("#radial").append("svg")
+	    .attr("width", width)
+	    .attr("height", height)
+	    .append("g")
+	    .attr("transform", "translate(" + (width/2)+ "," + height / 2 + ")");
 
 
-          var gr = svg1.append("g")
-              .attr("class", "r axis")
-            .selectAll("g")
-              .data(r.ticks(5).slice(1))
-            .enter().append("g");
+	var gr = svg1.append("g")
+	    .attr("class", "r axis")
+	  .selectAll("g")
+	    .data(r.ticks(5).slice(1))
+	  .enter().append("g");
 
-          gr.append("circle")
-              .attr("r", r);
+	gr.append("circle")
+	    .attr("r", r);
 
-          gr.append("text")
-              .attr("y", function(d) { return -r(d) - 4; })
-              .attr("transform", "rotate(15)")
-              .style("text-anchor", "middle")
-              .text(function(d) { return d*300; });
+	gr.append("text")
+	    .attr("y", function(d) { return -r(d) - 4; })
+	    .attr("transform", "rotate(15)")
+	    .style("text-anchor", "middle")
+	    .text(function(d) { return d*300; });
 
-          var ga = svg1.append("g")
-              .attr("class", "a axis")
-            .selectAll("g")
-              .data(d3.range(0, 360, 30))
-            .enter().append("g")
-              .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
+	var ga = svg1.append("g")
+	    .attr("class", "a axis")
+	  .selectAll("g")
+	    .data(d3.range(0, 360, 30))
+	  .enter().append("g")
+	    .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
 
-          ga.append("line")
-              .attr("x2", radius );
+	ga.append("line")
+	    .attr("x2", radius );
 
-          ga.append("text")
-              .attr("x", radius + 6)
-              .attr("dy", ".35em")
-              .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
-              .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
-              .text(function(d) { return d/30 + ":00"; });
+	ga.append("text")
+	    .attr("x", radius + 6)
+	    .attr("dy", ".35em")
+	    .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
+	    .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
+	    .text(function(d) { return d/30 + ":00"; });
 
-          var svg2 = d3.select("#radial").append("svg")
-              .attr("width", width)
-              .attr("height", height)
-            .append("g")
-              .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+	var svg2 = d3.select("#radial").append("svg")
+	    .attr("width", width)
+	    .attr("height", height)
+	  .append("g")
+	    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-          var gr = svg2.append("g")
-              .attr("class", "r axis")
-            .selectAll("g")
-              .data(r.ticks(5).slice(1))
-            .enter().append("g");
+	var gr = svg2.append("g")
+	    .attr("class", "r axis")
+	  .selectAll("g")
+	    .data(r.ticks(5).slice(1))
+	  .enter().append("g");
 
-          gr.append("circle")
-              .attr("r", r);
+	gr.append("circle")
+	    .attr("r", r);
 
-          gr.append("text")
-              .attr("y", function(d) { return -r(d) - 4; })
-              .attr("transform", "rotate(15)")
-              .style("text-anchor", "middle")
-              .text(function(d) { return d*1800; });
+	gr.append("text")
+	    .attr("y", function(d) { return -r(d) - 4; })
+	    .attr("transform", "rotate(15)")
+	    .style("text-anchor", "middle")
+	    .text(function(d) { return d*1800; });
 
-          var ga = svg2.append("g")
-              .attr("class", "a axis")
-            .selectAll("g")
-              .data(d3.range(0, 360, 30))
-            .enter().append("g")
-              .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
+	var ga = svg2.append("g")
+	    .attr("class", "a axis")
+	  .selectAll("g")
+	    .data(d3.range(0, 360, 30))
+	  .enter().append("g")
+	    .attr("transform", function(d) { return "rotate(" + (-d) + ")"; });
 
-          ga.append("line")
-              .attr("x2", radius );
+	ga.append("line")
+	    .attr("x2", radius );
 
-          ga.append("text")
-              .attr("x", radius + 6)
-              .attr("dy", ".35em")
-              .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
-              .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
-              .text(function(d) { return (d/30) +12 + ":00"; });
+	ga.append("text")
+	    .attr("x", radius + 6)
+	    .attr("dy", ".35em")
+	    .style("text-anchor", function(d) { return d < 270 && d > 90 ? "end" : null; })
+	    .attr("transform", function(d) { return d < 270 && d > 90 ? "rotate(180 " + (radius + 6) + ",0)" : null; })
+	    .text(function(d) { return (d/30) +12 + ":00"; });
 
-          //--------------------Bitcoin-------------------
-          var bar = svg.append("rect")
-            .attr("class", "Bitcoin")
-            .attr('transform', 'translate(90,0)') 
-            .attr("x", 225)
-            .attr("y", 50)
-            .attr("width", 40)
-            .attr("height", 20)
-            .style("fill", "#840fb5")
-            .style("opacity", 1)
-            .on("click", function(d) { 
-                d3.select(this).style("opacity",0.5)
-                if(i==0){
-                  i=i+1
-                  svg1.append("g")
-                  .attr("id","Bitcoin")
-                  .append("path")
-                  .datum(bit12)
-                  .attr("class", "line")
-                  .attr("d", line)
-                  .style("stroke", "#840fb5")
-                  .style("fill", "#840fb5")
-                  .style("opacity", 0.5)
-                  .on("mouseover", function(d) {
-                    d3.select(this).style("opacity", 1)
-                  })
-                  .on("mouseout",function(d) {
-                    d3.select(this).style("opacity", 0.5)
-                  });
-                  
-                  svg2.append("g")
-                    .attr("id", "Bitcoin")
-                    .append("path")
-                    .datum(bit24)
-                    .attr("class", "line")
-                    .attr("d", line)
-                    .attr("id", "Bitcoin")
-                    .style("stroke", "#840fb5")
-                    .style("fill", "#840fb5")
-                    .style("opacity", 0.5)
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("opacity", 1)
-                    })
-                    .on("mouseout",function(d) {
-                      d3.select(this).style("opacity", 0.5)
-                    });
+	//--------------------Bitcoin-------------------
+	var i = 0
+	var bar = svg.append("rect")
+	  .attr("class", "Bitcoin")
+	  .attr('transform', 'translate(90,0)') 
+	  .attr("x", 114)
+	  .attr("y", 50)
+	  .attr("width", 80)
+	  .attr("height", 25)
+	  .style("fill", "#840fb5")
+	  .style("opacity", 1)
+	  .on("click", function(d) { 
+	      d3.select(this).style("opacity",0.5)
+	      if(i==0){
+		i=i+1
+		svg1.append("g")
+		.attr("id","Bitcoin")
+		.append("path")
+		.datum(bit12)
+		.attr("class", "line")
+		.attr("d", line)
+		.style("stroke", "#840fb5")
+		.style("fill", "#840fb5")
+		.style("opacity", 0.5)
+		.on("mouseover", function(d) {
+		  d3.select(this).style("opacity", 1)
+		})
+		.on("mouseout",function(d) {
+		  d3.select(this).style("opacity", 0.5)
+		})
 
-
-                }
-                else{
-                  d3.selectAll("#Bitcoin").remove()
-
-                  i=i-1
-                }
-              }
-            )
-          //-----------------------eth--------
-          var bar = svg.append("rect")
-            .attr("class", "Etherium")
-            .attr('transform', 'translate(90,0)') 
-            .attr("x", 330)
-            .attr("y", 50)
-            .attr("width", 40)
-            .attr("height", 20)
-            .style("fill", "#158cae")
-            .style("opacity", 1)
-            .on("click", function(d) { 
-                d3.select(this).style("opacity",0.5)
-                if(i==0){
-                  d3.select(this).style("opacity",0.5)
-                  i=i+1
-                  svg1.append("g")
-                  .attr("id","Etherium")
-                  .append("path")
-                  .datum(eth12)
-                  .attr("class", "line")
-                  .attr("d", line)
-                  .style("stroke", "#158cae")
-                  .style("fill", "#158cae")
-                  .style("opacity", 0.5)
-                  .on("mouseover", function(d) {
-                    d3.select(this).style("opacity", 1)
-                  })
-                  .on("mouseout",function(d) {
-                    d3.select(this).style("opacity", 0.5)
-                  });
-                  
-                  svg2.append("g")
-                    .attr("id", "Etherium")
-                    .append("path")
-                    .datum(eth24)
-                    .attr("class", "line")
-                    .attr("d", line)
-                    .attr("id", "Etherium")
-                    .style("stroke", "#158cae")
-                    .style("fill", "#158cae")
-                    .style("opacity", 0.5)
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("opacity", 1)
-                    })
-                    .on("mouseout",function(d) {
-                      d3.select(this).style("opacity", 0.5)
-                    });
+		svg2.append("g")
+		  .attr("id", "Bitcoin")
+		  .append("path")
+		  .datum(bit24)
+		  .attr("class", "line")
+		  .attr("d", line)
+		  .attr("id", "Bitcoin")
+		  .style("stroke", "#840fb5")
+		  .style("fill", "#840fb5")
+		  .style("opacity", 0.5)
+		  .on("mouseover", function(d) {
+		    d3.select(this).style("opacity", 1)
+		  })
+		  .on("mouseout",function(d) {
+		    d3.select(this).style("opacity", 0.5)
+		  });
 
 
-                }
-                else{
-                  d3.select(this).style("opacity",1)
-                  d3.selectAll("#Etherium").remove()
+	      }
+	      else{
+		d3.select(this).style("opacity",1)
+		d3.selectAll("#Bitcoin").remove()
 
-                  i=i-1
-                }
-              }
-            )
+		i=i-1
+	      }
+	    }
+	  )
+	//-----------------------eth--------
+	var j = 0
+	var bar = svg.append("rect")
+	  .attr("class", "Etherium")
+	  .attr('transform', 'translate(90,0)') 
+	  .attr("x", 265)
+	  .attr("y", 50)
+	  .attr("width", 100)
+	  .attr("height", 25)
+	  .style("fill", "#158cae")
+	  .style("opacity", 1)
+	  .on("click", function(d) { 
+	      d3.select(this).style("opacity",0.5)
+	      if(j==0){
+		d3.select(this).style("opacity",0.5)
+		j=j+1
+		svg1.append("g")
+		.attr("id","Etherium")
+		.append("path")
+		.datum(eth12)
+		.attr("class", "line")
+		.attr("d", line)
+		.style("stroke", "#158cae")
+		.style("fill", "#158cae")
+		.style("opacity", 0.5)
+		.on("mouseover", function(d) {
+		  d3.select(this).style("opacity", 1)
+		})
+		.on("mouseout",function(d) {
+		  d3.select(this).style("opacity", 0.5)
+		});
 
-          //--------------------Litcoin-------------------
-          var bar = svg.append("rect")
-            .attr("class", "Litecoin")
-            .attr('transform', 'translate(90,0)') 
-            .attr("x", 430)
-            .attr("y", 50)
-            .attr("width", 40)
-            .attr("height", 20)
-            .style("fill", "#01afd4")
-            .style("opacity", 1)
-            .on("click", function(d) { 
-                d3.select(this).style("opacity",0.5)
-                if(i==0){
-                  i=i+1
-                  svg1.append("g")
-                  .attr("id","Litecoin")
-                  .append("path")
-                  .datum(lit12)
-                  .attr("class", "line")
-                  .attr("d", line)
-                  .style("stroke", "#01afd4")
-                  .style("fill", "#01afd4")
-                  .style("opacity", 0.5)
-                  .on("mouseover", function(d) {
-                    d3.select(this).style("opacity", 1)
-                  })
-                  .on("mouseout",function(d) {
-                    d3.select(this).style("opacity", 0.5)
-                  });
-                  
-                  svg2.append("g")
-                    .attr("id", "Litecoin")
-                    .append("path")
-                    .datum(lit24)
-                    .attr("class", "line")
-                    .attr("d", line)
-                    .attr("id", "Litecoin")
-                    .style("stroke", "#01afd4")
-                    .style("fill", "#01afd4")
-                    .style("opacity", 0.5)
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("opacity", 1)
-                    })
-                    .on("mouseout",function(d) {
-                      d3.select(this).style("opacity", 0.5)
-                    });
-
-
-                }
-                else{
-                  d3.selectAll("#Litecoin").remove()
-
-                  i=i-1
-                }
-              }
-            )
-
-          //--------------------Xrp-------------------
-          var bar = svg.append("rect")
-            .attr("class", "Xrp")
-            .attr('transform', 'translate(90,0)') 
-            .attr("x", 515)
-            .attr("y", 50)
-            .attr("width", 40)
-            .attr("height", 20)
-            .style("fill", "#49ac90")
-            .style("opacity", 1)
-            .on("click", function(d) { 
-                d3.select(this).style("opacity",0.5)
-                if(i==0){
-                  i=i+1
-                  svg1.append("g")
-                  .attr("id","Xrp")
-                  .append("path")
-                  .datum(xrp12)
-                  .attr("class", "line")
-                  .attr("d", line)
-                  .style("stroke", "#49ac90")
-                  .style("fill", "#49ac90")
-                  .style("opacity", 0.5)
-                  .on("mouseover", function(d) {
-                    d3.select(this).style("opacity", 1)
-                  })
-                  .on("mouseout",function(d) {
-                    d3.select(this).style("opacity", 0.5)
-                  });
-                  
-                  svg2.append("g")
-                    .attr("id", "Xrp")
-                    .append("path")
-                    .datum(xrp24)
-                    .attr("class", "line")
-                    .attr("d", line)
-                    .attr("id", "Xrp")
-                    .style("stroke", "#49ac90")
-                    .style("fill", "#49ac90")
-                    .style("opacity", 0.5)
-                    .on("mouseover", function(d) {
-                      d3.select(this).style("opacity", 1)
-                    })
-                    .on("mouseout",function(d) {
-                      d3.select(this).style("opacity", 0.5)
-                    });
+		svg2.append("g")
+		  .attr("id", "Etherium")
+		  .append("path")
+		  .datum(eth24)
+		  .attr("class", "line")
+		  .attr("d", line)
+		  .attr("id", "Etherium")
+		  .style("stroke", "#158cae")
+		  .style("fill", "#158cae")
+		  .style("opacity", 0.5)
+		  .on("mouseover", function(d) {
+		    d3.select(this).style("opacity", 1)
+		  })
+		  .on("mouseout",function(d) {
+		    d3.select(this).style("opacity", 0.5)
+		  });
 
 
-                }
-                else{
-                  d3.selectAll("#Xrp").remove()
+	      }
+	      else{
+		d3.select(this).style("opacity",1)
+		d3.selectAll("#Etherium").remove()
 
-                  i=i-1
-                }
-              }
-            )
+		j=j-1
+	      }
+	    }
+	  )
+
+	//--------------------Litcoin-------------------
+	var n = 0
+	var bar = svg.append("rect")
+	  .attr("class", "Litecoin")
+	  .attr('transform', 'translate(90,0)') 
+	  .attr("x", 420)
+	  .attr("y", 50)
+	  .attr("width", 80)
+	  .attr("height", 25)
+	  .style("fill", "#01afd4")
+	  .style("opacity", 1)
+	  .on("click", function(d) { 
+	      d3.select(this).style("opacity",0.5)
+	      if(n==0){
+		n=n+1
+		svg1.append("g")
+		.attr("id","Litecoin")
+		.append("path")
+		.datum(lit12)
+		.attr("class", "line")
+		.attr("d", line)
+		.style("stroke", "#01afd4")
+		.style("fill", "#01afd4")
+		.style("opacity", 0.5)
+		.on("mouseover", function(d) {
+		  d3.select(this).style("opacity", 1)
+		})
+		.on("mouseout",function(d) {
+		  d3.select(this).style("opacity", 0.5)
+		});
+
+		svg2.append("g")
+		  .attr("id", "Litecoin")
+		  .append("path")
+		  .datum(lit24)
+		  .attr("class", "line")
+		  .attr("d", line)
+		  .attr("id", "Litecoin")
+		  .style("stroke", "#01afd4")
+		  .style("fill", "#01afd4")
+		  .style("opacity", 0.5)
+		  .on("mouseover", function(d) {
+		    d3.select(this).style("opacity", 1)
+		  })
+		  .on("mouseout",function(d) {
+		    d3.select(this).style("opacity", 0.5)
+		  });
+
+
+	      }
+	      else{
+		d3.select(this).style("opacity",1)
+		d3.selectAll("#Litecoin").remove()
+
+		n=n-1
+	      }
+	    }
+	  )
+
+	//--------------------Xrp-------------------
+	var m = 0
+	var bar = svg.append("rect")
+	  .attr("class", "Xrp")
+	  .attr('transform', 'translate(90,0)') 
+	  .attr("x", 560)
+	  .attr("y", 50)
+	  .attr("width", 60)
+	  .attr("height", 25)
+	  .style("fill", "#49ac90")
+	  .style("opacity", 1)
+	  .on("click", function(d) { 
+	      d3.select(this).style("opacity",0.5)
+	      if(m==0){
+		m=m+1
+		svg1.append("g")
+		.attr("id","Xrp")
+		.append("path")
+		.datum(xrp12)
+		.attr("class", "line")
+		.attr("d", line)
+		.style("stroke", "#49ac90")
+		.style("fill", "#49ac90")
+		.style("opacity", 0.5)
+		.on("mouseover", function(d) {
+		  d3.select(this).style("opacity", 1)
+		})
+		.on("mouseout",function(d) {
+		  d3.select(this).style("opacity", 0.5)
+		});
+
+		svg2.append("g")
+		  .attr("id", "Xrp")
+		  .append("path")
+		  .datum(xrp24)
+		  .attr("class", "line")
+		  .attr("d", line)
+		  .attr("id", "Xrp")
+		  .style("stroke", "#49ac90")
+		  .style("fill", "#49ac90")
+		  .style("opacity", 0.5)
+		  .on("mouseover", function(d) {
+		    d3.select(this).style("opacity", 1)
+		  })
+		  .on("mouseout",function(d) {
+		    d3.select(this).style("opacity", 0.5)
+		  });
+
+
+	      }
+	      else{
+		d3.select(this).style("opacity",1)
+		d3.selectAll("#Xrp").remove()
+
+		map=m-1
+	      }
+	    }
+	  )
+
+	var legend = svg.selectAll(".legend")
+	    .data(legendoptions.map(function(d){ return d.id}))
+	    .enter().append("g")
+	    .attr("transform", function(d,i) {return "translate(" +(i*150+200)+"," +   60+")"})
+	    .attr("class", "legend")
+
+	legend.append("text")
+	    .text(function(d) {return d})
+	    .style("font-size", 20)
+	    .style("font-weight", "bold")
+	    .style("fill","white")
+	    .attr("x",15)
+	    .attr("y",8)
         </script>
     </div>
 
