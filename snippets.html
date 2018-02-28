@@ -7,13 +7,14 @@
 </head>
 
 <style>
-#velocity{
-  margin-top: 30px;
-  display: inline;
 
+p{
+  margin-top: 20px;
 }
 body{
-  margin: 4%;
+  margin-top:5%;
+  margin-left: 15%;
+  width: 1200px;
 }
 .text {
   font-family: 'Saira Condensed', serif;
@@ -117,7 +118,7 @@ display: block;
     }
 
 #chart {
-  width: 32%;
+  width: 40%;
   float: left;
   display: inline;
 }
@@ -125,6 +126,13 @@ display: block;
   width: 60%;
   float: left;
   display: inline;
+
+}
+
+#velocity{
+  margin-top: 30px;
+  display: block;
+  width: 1000px;
 
 }
 
@@ -509,9 +517,9 @@ function doughtnut(){
     </div>
     <h2>THE IDEA</h2>
     <div class='text'>
-      <p>
+    <p>
     In late spring 2017 the market experienced a significant uptick in trading volume as can be observed in the stream graph. The interest of one of our team members was peaked by this increase in trading. The outcome of this peaked interested was a researchable question: what information sources could an individual or organization using to monitor and track the cryptocurrency market.
-  </p>
+    </p>
     <p>
       Looking through mainstream media it would not be difficult to find topic pieces on cryptocurrencies. Articles on this topic have been covered by media outlets such as the New York Times, Fortune and The Atlantic. Despite this increase in coverage, cryptocurrency markets are not covered in the same fashion as their centralized financial counterparts. Twitter seemed like the most obvious candidate. The twitter-sphere is similar to the cryptocurrency environment in that it is also highly unregulated and attracts a segment of the population actively engaged with technology.
     </p>
@@ -537,6 +545,7 @@ function doughtnut(){
         The visualization on the left shows the total volume of the tweets by currency collected during the data collection period. As can be seen in this visualization, over 50% of the tweets included Bitcoin as a key word. Bitcoin was the first cryptocurrency to be invented and remains one of the most traded currencies and this result is therefore unsurprising.
         </p>
       </div>
+
       <div id="velocity" class="text">
         <h3>Velocity</h3>
         <p>
@@ -549,7 +558,7 @@ function doughtnut(){
 
     </div>
     <h2>WHAT THE TWEET?</h2>
-    <div id='sent' class='text'>
+    <div id='sent_text' class='text'>
       The primary question of interest for this analysis was whether data contained in tweets could be used to gather information about the cryptocurrency markets. To achieve this goal, a natural language processing python library was used to analyze the sentiment of the tweets. The polarity of the tweet was defined as a number between -1 and 1 rating the degree of negativity or positivity in the language of the tweet. The results of the analysis are provided in the visualization below.
       The change in sentiment was calculated for all the tweets as well as by cryptocurrency. The results for average sentiment by cryptocurrency proved unreliable. This is unsurprising given the smaller sample size of tweets associated with individual cryptocurrencies.  However, the results for the sentiment values calculated using all tweets proved promising.
     <p>
